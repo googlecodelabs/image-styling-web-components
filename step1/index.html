@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+/* code will go here */
+class CodelabDragdrop extends HTMLElement {
+  constructor() {
+    super();
+  }
+
+  connectedCallback() {
+    // we'll do stuff here later
+    console.info('Element connected!');
+  }
+}
+customElements.define('codelab-dragdrop', CodelabDragdrop);
+
+</script>
+</head>
+<body>
+
+<h1>Image Styling with Web Components</h1>
+
+<!-- elements will go here -->
+<codelab-dragdrop></codelab-dragdrop>
+
+</body>
+</html>
