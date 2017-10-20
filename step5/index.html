@@ -65,16 +65,24 @@ class CodelabEffects extends HTMLElement {
     this.root.innerHTML = `
 <style>
 :host {
-  background: #eee;
+  background: #fff;
   display: inline-block;
 }
 </style>
 <canvas id="canvas" width="512" height="512"></canvas>
-<a href="#" id="link">Download</a>
+<br /><a href="#" id="link">Download</a>
 <table>
   <tr>
     <td>AMOUNT</td>
     <td><input id="amount" type="range" min="3" max="40" value="10"></td>
+  </tr>
+  <tr>
+    <td>SIZE</td>
+    <td><input id="size" type="range" min="0" max="4" step="0.01" value="0.8"></td>
+  </tr>
+  <tr>
+    <td>OPACITY</td>
+    <td><input id="opacity" type="range" min="0" max="1" step="0.01" value="1"></td>
   </tr>
   <tr>
     <td>ATTENUATION</td>
@@ -86,17 +94,31 @@ class CodelabEffects extends HTMLElement {
     const link = this.root.getElementById('link');
     link.addEventListener('click', (ev) => {
       link.href = this.root.getElementById('canvas').toDataURL();
-      link.download = 'bokeh.png';
+      link.download = 'pointify.png';
     });
 
-    // ... but add these two new listeners
+    //add these two new listeners
     this.root.addEventListener('input', (ev) => this.draw());
     this.root.addEventListener('change', (ev) => this.draw());
+
   }
 
   // Add this method
   set image(image) {
     const canvas = this.root.getElementById('canvas');
+
+	//resize image to something reasonable
+	const maxsize = 1024;
+	if (image.height > image.width & image.height > maxsize){
+		canvas.height = maxsize;
+		canvas.width = image.width * (maxsize/image.height);
+	}else if (image.width > image.height & image.width > maxsize){
+		canvas.height = image.height * (maxsize/image.width);
+		canvas.width = maxsize;
+	}else{
+		canvas.height = image.height;
+		canvas.width = image.width;
+	}
 
     // clone canvas to get one of same size
     const buf = canvas.cloneNode(true);
@@ -116,15 +138,16 @@ class CodelabEffects extends HTMLElement {
 
     const attenuation = this.root.getElementById('attenuation').checked;
     const amount = +this.root.getElementById('amount').value;
-    const size = amount * .8;
+    const size = this.root.getElementById('size').value * amount;
+	const opacity = this.root.getElementById('opacity').value;
 
     for (let y = amount; y < canvas.height; y += amount * 2) {
       for (let x = amount; x < canvas.width; x += amount * 2) {
         const index = ((y * canvas.width) + x) * 4;
         const [r,g,b] = this.data.slice(index, index+3);
-        const color = `rgb(${r},${g},${b})`;
+        const color = `rgba(${r},${g},${b},${opacity})`;
 
-        const weight = Math.max(r + g + b) / 256;
+		const weight = 1 - ( this.data[ index ] / 255 );
         const radius = (attenuation ? size * weight : size);
 
         context.beginPath();

@@ -70,7 +70,6 @@ class CodelabEffects extends HTMLElement {
 }
 </style>
 <canvas id="canvas" width="512" height="512"></canvas>
-<a href="#" id="link">Download</a>
 <table>
   <tr>
     <td>AMOUNT</td>
@@ -78,17 +77,25 @@ class CodelabEffects extends HTMLElement {
   </tr>
 </table>
 `;
-    // And add this handler
-    const link = this.root.getElementById('link');
-    link.addEventListener('click', (ev) => {
-      link.href = this.root.getElementById('canvas').toDataURL();
-      link.download = 'bokeh.png';
-    });
-  }
+}
 
   // Add this method
   set image(image) {
     const canvas = this.root.getElementById('canvas');
+
+	//resize image to something reasonable
+	const maxsize = 1024;
+	if (image.height > image.width & image.height > maxsize){
+		canvas.height = maxsize;
+		canvas.width = image.width * (maxsize/image.height);
+	}else if (image.width > image.height & image.width > maxsize){
+		canvas.height = image.height * (maxsize/image.width);
+		canvas.width = maxsize;
+	}else{
+		canvas.height = image.height;
+		canvas.width = image.width;
+	}
+	
 
     // clone canvas to get one of same size
     const buf = canvas.cloneNode(true);
