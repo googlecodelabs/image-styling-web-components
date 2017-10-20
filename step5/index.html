@@ -76,6 +76,10 @@ class CodelabEffects extends HTMLElement {
     <td>AMOUNT</td>
     <td><input id="amount" type="range" min="3" max="40" value="10"></td>
   </tr>
+  <tr>
+    <td>ATTENUATION</td>
+    <td><input id="attenuation" type="checkbox"></td>
+  </tr>
 </table>
 `;
     // And add this handler
@@ -84,6 +88,10 @@ class CodelabEffects extends HTMLElement {
       link.href = this.root.getElementById('canvas').toDataURL();
       link.download = 'bokeh.png';
     });
+
+    // ... but add these two new listeners
+    this.root.addEventListener('input', (ev) => this.draw());
+    this.root.addEventListener('change', (ev) => this.draw());
   }
 
   // Add this method
@@ -106,6 +114,7 @@ class CodelabEffects extends HTMLElement {
     canvas.width = canvas.width;  // clear canvas
     const context = canvas.getContext('2d');
 
+    const attenuation = this.root.getElementById('attenuation').checked;
     const amount = +this.root.getElementById('amount').value;
     const size = amount * .8;
 
@@ -115,8 +124,11 @@ class CodelabEffects extends HTMLElement {
         const [r,g,b] = this.data.slice(index, index+3);
         const color = `rgb(${r},${g},${b})`;
 
+        const weight = Math.max(r + g + b) / 256;
+        const radius = (attenuation ? size * weight : size);
+
         context.beginPath();
-        context.arc(x, y, size, 0, 360, false);
+        context.arc(x, y, radius, 0, 360, false);
         context.fillStyle = color;
         context.fill();
       }
