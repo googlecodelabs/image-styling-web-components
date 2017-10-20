@@ -54,7 +54,6 @@ class CodelabDragdrop extends HTMLElement {
       };
     };
     reader.readAsDataURL(file);
-
   }
 }
 customElements.define('codelab-dragdrop', CodelabDragdrop);
@@ -62,7 +61,7 @@ customElements.define('codelab-dragdrop', CodelabDragdrop);
 class CodelabEffects extends HTMLElement {
   constructor() {
     super();
-    this.root = this.createShadowRoot({mode: open});
+    this.root = this.attachShadow({mode: 'open'});
     this.root.innerHTML = `
 <style>
 :host {
@@ -74,7 +73,7 @@ class CodelabEffects extends HTMLElement {
 <table>
   <tr>
     <td>AMOUNT</td>
-    <td><input id="detail" type="range" min="4" max="40" value="10"></td>
+    <td><input id="amount" type="range" min="3" max="40" value="10"></td>
   </tr>
 </table>
 `;
@@ -99,13 +98,15 @@ class CodelabEffects extends HTMLElement {
     const canvas = this.root.getElementById('canvas');
     canvas.width = canvas.width;  // clear canvas
     const context = canvas.getContext('2d');
-    const detail = +this.root.getElementById('detail').value;
-    const size = detail * .8;
 
-    for (let y = detail; y < canvas.height; y += detail * 2) {
-      for (let x = detail; x < canvas.width; x += detail * 2) {
+    const amount = +this.root.getElementById('amount').value;
+    const size = amount * .8;
+
+    for (let y = amount; y < canvas.height; y += amount * 2) {
+      for (let x = amount; x < canvas.width; x += amount * 2) {
         const index = ((y * canvas.width) + x) * 4;
-        const color = `rgb(${this.data[index+0]},${this.data[index+1]},${this.data[index+2]})`;
+        const [r,g,b] = this.data.slice(index, index+3);
+        const color = `rgb(${r},${g},${b})`;
 
         context.beginPath();
         context.arc(x, y, size, 0, 360, false);
