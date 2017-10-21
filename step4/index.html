@@ -65,7 +65,7 @@ class CodelabEffects extends HTMLElement {
     this.root.innerHTML = `
 <style>
 :host {
-  background: #eee;
+  background: #fff;
   display: inline-block;
 }
 </style>
@@ -77,6 +77,7 @@ class CodelabEffects extends HTMLElement {
   </tr>
 </table>
 `;
+
 }
 
   // Add this method
@@ -85,10 +86,10 @@ class CodelabEffects extends HTMLElement {
 
 	//resize image to something reasonable
 	const maxsize = 1024;
-	if (image.height > image.width & image.height > maxsize){
+	if (image.height > image.width && image.height > maxsize){
 		canvas.height = maxsize;
 		canvas.width = image.width * (maxsize/image.height);
-	}else if (image.width > image.height & image.width > maxsize){
+	}else if (image.width > image.height && image.width > maxsize){
 		canvas.height = image.height * (maxsize/image.width);
 		canvas.width = maxsize;
 	}else{

@@ -19,37 +19,12 @@ specific language governing permissions and limitations under the License.
 /* code will go here */
 class CodelabDragdrop extends HTMLElement {
   constructor() {
-    super();  // you always need super
-
-    this.addEventListener('dragover', (ev) => {
-      ev.preventDefault();
-    });
-    this.addEventListener('drop', (ev) => {
-      ev.preventDefault();
-      const file = ev.dataTransfer.files[0] || null;
-      file && this._gotFile(file);
-    });
+    super();
   }
 
   connectedCallback() {
     // we'll do stuff here later
     console.info('Element connected!');
-  }
-  // add _gotFile below here!
-
-  _gotFile(file) {
-    const image = new Image();
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      image.src = event.target.result;
-      const params = {
-        detail: image,
-        bubbles: true,
-      };
-      const ev = new CustomEvent('image', params);
-      this.dispatchEvent(ev);
-    };
-    reader.readAsDataURL(file);
   }
 }
 customElements.define('codelab-dragdrop', CodelabDragdrop);
@@ -61,10 +36,7 @@ customElements.define('codelab-dragdrop', CodelabDragdrop);
 <h1>Image Styling with Web Components</h1>
 
 <!-- elements will go here -->
-<codelab-dragdrop>
-  <div style="width: 200px; height: 200px; background: red;">
-  </div>
-</codelab-dragdrop>
+<codelab-dragdrop></codelab-dragdrop>
 
 </body>
 </html>

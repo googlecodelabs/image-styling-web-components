@@ -76,6 +76,18 @@ class CodelabEffects extends HTMLElement {
     <td>AMOUNT</td>
     <td><input id="amount" type="range" min="3" max="40" value="10"></td>
   </tr>
+  <tr>
+    <td>SIZE</td>
+    <td><input id="size" type="range" min="0" max="4" step="0.01" value="0.8"></td>
+  </tr>
+  <tr>
+    <td>OPACITY</td>
+    <td><input id="opacity" type="range" min="0" max="1" step="0.01" value="1"></td>
+  </tr>
+  <tr>
+    <td>ATTENUATION</td>
+    <td><input id="attenuation" type="checkbox"></td>
+  </tr>
 </table>
 `;
     // And add this handler
@@ -84,6 +96,10 @@ class CodelabEffects extends HTMLElement {
       link.href = this.root.getElementById('canvas').toDataURL();
       link.download = 'pointify.png';
     });
+
+    //add these two new listeners
+    this.root.addEventListener('input', (ev) => this.draw());
+    this.root.addEventListener('change', (ev) => this.draw());
 
   }
 
@@ -109,6 +125,7 @@ class CodelabEffects extends HTMLElement {
     const ctx = buf.getContext('2d');
     ctx.drawImage(image, 0, 0, buf.width, buf.height);
     this.data = ctx.getImageData(0, 0, buf.width, buf.height).data;
+	console.info(this.data);
 
     // Replace console.info with:
     this.draw();
@@ -120,17 +137,22 @@ class CodelabEffects extends HTMLElement {
     canvas.width = canvas.width;  // clear canvas
     const context = canvas.getContext('2d');
 
+    const attenuation = this.root.getElementById('attenuation').checked;
     const amount = +this.root.getElementById('amount').value;
-    const size = amount * .8;
+    const size = this.root.getElementById('size').value * amount;
+	const opacity = this.root.getElementById('opacity').value;
 
     for (let y = amount; y < canvas.height; y += amount * 2) {
       for (let x = amount; x < canvas.width; x += amount * 2) {
         const index = ((y * canvas.width) + x) * 4;
         const [r,g,b] = this.data.slice(index, index+3);
-        const color = `rgb(${r},${g},${b})`;
+        const color = `rgba(${r},${g},${b},${opacity})`;
+
+		const weight = 1 - (Math.max(r,g,b) / 255);
+        const radius = (attenuation ? size * weight : size);
 
         context.beginPath();
-        context.arc(x, y, size, 0, 360, false);
+        context.arc(x, y, radius, 0, 360, false);
         context.fillStyle = color;
         context.fill();
       }
