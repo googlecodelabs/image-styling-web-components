@@ -41,82 +41,18 @@ class CodelabDragdrop extends HTMLElement {
     const image = new Image();
     const reader = new FileReader();
     reader.onload = (event) => {
-      // when the reader is ready
       image.src = event.target.result;
-      image.onload = () => {
-        // when the image is ready
-        const params = {
-          detail: image,
-          bubbles: true,
-        };
-        const ev = new CustomEvent('image', params);
-        this.dispatchEvent(ev);
+      const params = {
+        detail: image,
+        bubbles: true,
       };
+      const ev = new CustomEvent('image', params);
+      this.dispatchEvent(ev);
     };
     reader.readAsDataURL(file);
   }
 }
 customElements.define('codelab-dragdrop', CodelabDragdrop);
-
-class CodelabEffects extends HTMLElement {
-  constructor() {
-    super();
-    this.root = this.attachShadow({mode: 'open'});
-    this.root.innerHTML = `
-<style>
-:host {
-  background: #eee;
-  display: inline-block;
-}
-</style>
-<canvas id="canvas" width="512" height="512"></canvas>
-<table>
-  <tr>
-    <td>AMOUNT</td>
-    <td><input id="amount" type="range" min="3" max="40" value="10"></td>
-  </tr>
-</table>
-`;
-  }
-
-  // Add this method
-  set image(image) {
-    const canvas = this.root.getElementById('canvas');
-
-    // clone canvas to get one of same size
-    const buf = canvas.cloneNode(true);
-    const ctx = buf.getContext('2d');
-    ctx.drawImage(image, 0, 0, buf.width, buf.height);
-    this.data = ctx.getImageData(0, 0, buf.width, buf.height).data;
-
-    // Replace console.info with:
-    this.draw();
-  }
-
-  // And add this method
-  draw() {
-    const canvas = this.root.getElementById('canvas');
-    canvas.width = canvas.width;  // clear canvas
-    const context = canvas.getContext('2d');
-
-    const amount = +this.root.getElementById('amount').value;
-    const size = amount * .8;
-
-    for (let y = amount; y < canvas.height; y += amount * 2) {
-      for (let x = amount; x < canvas.width; x += amount * 2) {
-        const index = ((y * canvas.width) + x) * 4;
-        const [r,g,b] = this.data.slice(index, index+3);
-        const color = `rgb(${r},${g},${b})`;
-
-        context.beginPath();
-        context.arc(x, y, size, 0, 360, false);
-        context.fillStyle = color;
-        context.fill();
-      }
-    }
-  }
-}
-customElements.define('codelab-effects', CodelabEffects);
 
 </script>
 </head>
@@ -125,15 +61,10 @@ customElements.define('codelab-effects', CodelabEffects);
 <h1>Image Styling with Web Components</h1>
 
 <!-- elements will go here -->
-<codelab-dragdrop id="dragdrop">
-  <codelab-effects id="effects"></codelab-effects>
+<codelab-dragdrop>
+  <div style="width: 200px; height: 200px; background: red;">
+  </div>
 </codelab-dragdrop>
-<script>
-dragdrop.addEventListener('image', (ev) => {
-  effects.image = ev.detail;  // set the file that we got in dragdrop
-});
-</script>
-
 
 </body>
 </html>

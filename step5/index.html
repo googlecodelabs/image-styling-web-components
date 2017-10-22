@@ -65,20 +65,17 @@ class CodelabEffects extends HTMLElement {
     this.root.innerHTML = `
 <style>
 :host {
-  background: #eee;
+  background: #fff;
+  border: 1px solid black;
   display: inline-block;
 }
 </style>
 <canvas id="canvas" width="512" height="512"></canvas>
-<a href="#" id="link">Download</a>
+<br /><a href="#" id="link">Download</a>
 <table>
   <tr>
     <td>AMOUNT</td>
     <td><input id="amount" type="range" min="3" max="40" value="10"></td>
-  </tr>
-  <tr>
-    <td>ATTENUATION</td>
-    <td><input id="attenuation" type="checkbox"></td>
   </tr>
 </table>
 `;
@@ -86,17 +83,27 @@ class CodelabEffects extends HTMLElement {
     const link = this.root.getElementById('link');
     link.addEventListener('click', (ev) => {
       link.href = this.root.getElementById('canvas').toDataURL();
-      link.download = 'bokeh.png';
+      link.download = 'pointify.png';
     });
 
-    // ... but add these two new listeners
-    this.root.addEventListener('input', (ev) => this.draw());
-    this.root.addEventListener('change', (ev) => this.draw());
   }
 
   // Add this method
   set image(image) {
     const canvas = this.root.getElementById('canvas');
+
+	//resize image to something reasonable
+	const maxsize = 1024;
+	if (image.height > image.width && image.height > maxsize){
+		canvas.height = maxsize;
+		canvas.width = image.width * (maxsize/image.height);
+	}else if (image.width > image.height && image.width > maxsize){
+		canvas.height = image.height * (maxsize/image.width);
+		canvas.width = maxsize;
+	}else{
+		canvas.height = image.height;
+		canvas.width = image.width;
+	}
 
     // clone canvas to get one of same size
     const buf = canvas.cloneNode(true);
@@ -114,7 +121,6 @@ class CodelabEffects extends HTMLElement {
     canvas.width = canvas.width;  // clear canvas
     const context = canvas.getContext('2d');
 
-    const attenuation = this.root.getElementById('attenuation').checked;
     const amount = +this.root.getElementById('amount').value;
     const size = amount * .8;
 
@@ -124,11 +130,8 @@ class CodelabEffects extends HTMLElement {
         const [r,g,b] = this.data.slice(index, index+3);
         const color = `rgb(${r},${g},${b})`;
 
-        const weight = Math.max(r + g + b) / 256;
-        const radius = (attenuation ? size * weight : size);
-
         context.beginPath();
-        context.arc(x, y, radius, 0, 360, false);
+        context.arc(x, y, size, 0, 360, false);
         context.fillStyle = color;
         context.fill();
       }
